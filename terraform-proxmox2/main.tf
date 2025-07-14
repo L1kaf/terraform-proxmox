@@ -1,0 +1,83 @@
+module "app" {
+  source = "./modules/lxc_container"
+
+  target_node     = "homeserv"
+  vm_hostname     = "app-01"
+  ostemplate      = "local:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
+  ssh_public_key  = file("./ssh/id_terraform.pub")
+  private_key     = file("./ssh/id_terraform")
+  ip_address      = "192.168.31.50/24"
+  gateway         = "192.168.31.1"
+  bridge          = "vmbr0"
+  storage         = "Storage"
+  size            = "8G"
+
+  lxc_resources = {
+    cores  = 2
+    memory = 2048
+    swap   = 512
+  }
+
+}
+
+
+output "container_hostname" {
+  value = module.app.vm_hostname
+}
+
+
+module "app_dynamic" {
+  source = "./modules/lxc_dynamic"
+
+
+  lxc_map = {
+    nginx01 = { ip = "192.168.31.201/24" }
+    nginx02 = { ip = "192.168.31.202/24" }
+  }
+
+
+  target_node     = "homeserv"
+  ostemplate      = "local:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
+  ssh_public_key  = file("./ssh/id_terraform.pub")
+  private_key     = file("./ssh/id_terraform")
+  gateway         = "192.168.31.1"
+  bridge          = "vmbr0"
+  storage         = "Storage"
+  size            = "8G"
+
+  lxc_resources = {
+    cores  = 2
+    memory = 2048
+    swap   = 512
+  }
+
+}
+
+output "container_hostname_dynamic" {
+  value = module.app_dynamic.vm_hostname
+}
+
+
+module "app_demo" {
+  source = "./modules/lxc_count"
+
+  target_node     = "homeserv"
+  ostemplate      = "local:vztmpl/ubuntu-22.04-standard_22.04-1_amd64.tar.zst"
+  ssh_public_key  = file("./ssh/id_terraform.pub")
+  private_key     = file("./ssh/id_terraform")
+  gateway         = "192.168.31.1"
+  bridge          = "vmbr0"
+  storage         = "Storage"
+  size            = "8G"
+
+  lxc_resources = {
+    cores  = 2
+    memory = 2048
+    swap   = 512
+  }
+
+}
+
+output "container_hostname_demo" {
+  value = module.app_demo.vm_hostname
+}
